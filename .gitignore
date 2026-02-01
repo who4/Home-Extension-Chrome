@@ -1,0 +1,16 @@
+# OS boilerplate
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Intellij / Editor
+.idea/
+.vscode/
+
+# Build/Temp
+dist/
+build/
+*.zip
