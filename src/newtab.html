@@ -20,8 +20,8 @@
         </div>
 
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search" autocomplete="off">
-            <div id="search-suggestions" class="suggestions-container"></div>
+            <input type="text" id="search-input" placeholder="Search" autocomplete="off" aria-label="Search or enter a command" aria-autocomplete="list" aria-controls="search-suggestions">
+            <div id="search-suggestions" class="suggestions-container" role="listbox" aria-label="Search results"></div>
         </div>
 
         <div class="shortcuts-grid" id="shortcuts-grid">
@@ -31,7 +31,7 @@
     </main>
 
     <!-- Add Note Button -->
-    <button id="add-note-btn" class="add-note-btn" title="New Sticky Note">+</button>
+    <button id="add-note-btn" class="add-note-btn" title="New Sticky Note" aria-label="Add new sticky note">+</button>
 
     <!-- Price Widget -->
     <div class="price-widget" id="price-widget">
@@ -46,7 +46,7 @@
     </div>
 
     <!-- News Widget -->
-    <a href="#" class="news-widget" id="news-widget" target="_blank">
+    <a class="news-widget news-widget--inert" id="news-widget" target="_blank">
         <span class="news-label">BREAKING 🔴</span>
         <span class="news-headline" id="news-headline">Loading top story...</span>
     </a>
@@ -54,7 +54,7 @@
 
 
     <!-- Add Shortcut Modal -->
-    <div class="modal" id="shortcut-modal">
+    <div class="modal" id="shortcut-modal" role="dialog" aria-modal="true" aria-label="Add Shortcut">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Add Shortcut</h2>
@@ -67,14 +67,13 @@
             <div class="form-group">
                 <label for="shortcut-url">Address</label>
                 <input type="text" id="shortcut-url" placeholder="youtube.com">
-                <div id="icon-results"></div> <!-- Preview container -->
             </div>
             <button class="primary-btn" id="save-shortcut">Add to Home</button>
         </div>
     </div>
 
-    <!-- Settings Modal (New) -->
-    <div class="modal" id="settings-modal">
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal" role="dialog" aria-modal="true" aria-label="Settings">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Settings</h2>
@@ -99,8 +98,7 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="./script.ts"></script>
 </body>
 
 </html>

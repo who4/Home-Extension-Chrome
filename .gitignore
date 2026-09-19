@@ -14,3 +14,9 @@ Desktop.ini
 dist/
 build/
 *.zip
+
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
