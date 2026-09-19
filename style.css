@@ -1,0 +1,702 @@
+:root {
+    /* Apple Dark Mode Palette */
+    --bg-base: #000000;
+    --material-regular: rgba(30, 30, 30, 0.75);
+    --material-thick: rgba(40, 40, 40, 0.9);
+    --border-subtle: rgba(255, 255, 255, 0.12);
+    --text-primary: #F5F5F7;
+    /* Apple Off-White */
+    --text-secondary: #86868b;
+    --accent-blue: #2997FF;
+    /* Apple System Blue */
+    --radius-l: 24px;
+    --radius-m: 16px;
+    --radius-s: 12px;
+    --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-base);
+    /* Subtle, rich gradient like macOS wallpapers */
+    background-image:
+        radial-gradient(circle at 20% 0%, #1a1a2e 0%, transparent 40%),
+        radial-gradient(circle at 80% 100%, #151520 0%, transparent 40%);
+    color: var(--text-primary);
+    font-family: var(--font-stack);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    /* Context for absolute children */
+    z-index: 1;
+    /* Ensure main content is above background */
+}
+
+/* STICKY NOTES SYSTEM */
+#notes-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    /* Just above background, below Main UI */
+    pointer-events: none;
+    /* Let clicks pass through empty areas */
+}
+
+.sticky-note {
+    position: absolute;
+    width: 220px;
+    height: auto;
+    /* Dynamic height */
+    min-height: 100px;
+    background: rgba(30, 30, 30, 0.6);
+    /* Slightly more opaque for readability */
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: auto;
+    /* Re-enable clicks on notes */
+    transition: transform 0.1s, box-shadow 0.2s;
+    animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.add-note-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.add-note-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.sticky-note:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.note-header {
+    height: 28px;
+    flex-shrink: 0;
+    /* Header static height */
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* Close button on right */
+    padding: 0 6px;
+    border-radius: 16px 16px 0 0;
+    /* Radius matching parent */
+}
+
+.note-header:active {
+    cursor: grabbing;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.note-close {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.note-close::before {
+    content: "×";
+    padding-bottom: 2px;
+}
+
+.note-close:hover {
+    background: #ff453a;
+    color: white;
+}
+
+.note-content {
+    /* Remove flex: 1 so it determines its own height */
+    width: 100%;
+    background: transparent;
+    border: none;
+    resize: none;
+    outline: none;
+    padding: 12px;
+    color: var(--text-primary);
+    font-family: var(--font-stack);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow: hidden;
+    /* Hide scrollbar for auto-grow */
+    min-height: 40px;
+    display: block;
+}
+
+.note-content::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Ensure Main is clickable but allows pass-through to spawn notes if needed? 
+   Actually, users want to click empty space. Main has padding. 
+   If we click main padding, it should spawn. 
+*/
+
+
+/* Ensure interactive elements are clickable over the scratchpad */
+.clock-container,
+.search-container,
+.shortcuts-grid {
+    z-index: 2;
+    position: relative;
+    pointer-events: none;
+    /* Let clicks pass through gaps? No, that breaks selection. */
+    pointer-events: auto;
+}
+
+
+/* CLOCK: ULTRA CLEAN */
+.clock-container {
+    text-align: center;
+    margin-bottom: 40px;
+    /* Reduced from 60px for tighter feel */
+    animation: fadeScaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+}
+
+#time-display {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    font-size: 9rem;
+    /* Slightly reduced from 10rem for better proportion */
+    font-weight: 600;
+    letter-spacing: -3px;
+    line-height: 1;
+    color: #FFFFFF;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
+    font-variant-numeric: tabular-nums;
+}
+
+#date-display {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* Suggestions Dropdown */
+.suggestions-container {
+    position: absolute;
+    top: 100%;
+    left: 20px;
+    /* Match padding */
+    right: 20px;
+    margin-top: 10px;
+    background: rgba(30, 30, 30, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transform: translateY(-10px);
+    /* transition: all 0.2s; REMOVED for instant feel */
+    z-index: 9;
+}
+
+.suggestions-container.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.suggestion-item {
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.1s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* .suggestion-item::before removed */
+
+/* SEARCH: LARGER & CLEANER */
+.search-container {
+    width: 100%;
+    max-width: 680px;
+    /* Balanced width */
+    margin-bottom: 50px;
+    position: relative;
+    padding: 0 20px;
+    z-index: 10;
+}
+
+#search-input {
+    width: 100%;
+    padding: 20px 32px;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: white;
+    background: rgba(40, 40, 40, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* TRANSFORMING RADIUS */
+    border-radius: 50px;
+    /* Fully rounded pill when idle */
+
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    outline: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Smooth morph */
+    text-align: center;
+    /* Centered text when idle looks better for pill */
+}
+
+#search-input:focus {
+    background: rgba(60, 60, 60, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
+
+    /* Active State */
+    border-radius: 20px;
+    /* Squarer on focus */
+    text-align: left;
+    /* Shift text to left on focus for typing */
+    padding-left: 24px;
+
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+}
+
+/* SHORTCUTS: LARGER GRID */
+.shortcuts-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 1000px;
+    /* Increased from 800 */
+    padding: 10px;
+}
+
+.shortcut-pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 28px;
+    /* Larger pill padding */
+    min-width: 110px;
+    height: 54px;
+    /* Taller */
+    border-radius: 14px;
+    text-decoration: none;
+    font-size: 16px;
+    /* Larger font */
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease-out;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    user-select: none;
+}
+
+.shortcut-pill:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.shortcut-text {
+    z-index: 1;
+    pointer-events: none;
+    padding-right: 0;
+    /* Clear space */
+}
+
+/* Add Button */
+.add-shortcut-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    /* Match pill height */
+    height: 54px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-shortcut-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.8);
+    color: white;
+}
+
+/* Modal Close Button */
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+    padding: 0;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+/* Delete Button - Fixed & Cleaner */
+.delete-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    /* Centered vertically */
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+}
+
+.delete-btn::before {
+    content: "×";
+    padding-bottom: 2px;
+    /* Micro adjustment */
+}
+
+.shortcut-pill:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    background: #ff453a;
+    /* iOS Red */
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* PRICE WIDGET - Spaced Out */
+.price-widget {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: fit-content;
+    min-width: 220px;
+    /* Wider to handle spacing */
+    padding: 16px 20px;
+    background: var(--material-regular);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    /* Pushes edges apart */
+    align-items: center;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+    gap: 20px;
+    /* Explicit gap between name and value */
+}
+
+.price-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.price-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.price-value {
+    font-size: 15px;
+    /* Slightly larger */
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.trend-up {
+    color: #30D158;
+}
+
+.trend-down {
+    color: #FF453A;
+}
+
+/* NEWS WIDGET - Bottom Right */
+.news-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 300px;
+    /* Fixed width as requested "you can decide width" */
+    /* Height will match roughly via padding, but let's constrain it slightly to align with visual balance */
+    padding: 16px 20px;
+    background: var(--material-regular);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.news-widget:hover {
+    transform: scale(1.02);
+    background: var(--material-thick);
+}
+
+.news-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #FF453A;
+    /* Apple Red for "Breaking" */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.news-headline {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* MODAL - Fixed Layout */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Dim background */
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: rgba(30, 30, 30, 0.65);
+    /* Glassy dark */
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    width: 360px;
+    border-radius: 20px;
+    /* More rounded */
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: white;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.form-group label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 6px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    /* Darker transparent input */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.5);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+}
+
+.form-group input:focus {
+    outline: 2px solid var(--accent-blue);
+}
+
+.primary-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.primary-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.02);
+}
+
+@keyframes fadeScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
